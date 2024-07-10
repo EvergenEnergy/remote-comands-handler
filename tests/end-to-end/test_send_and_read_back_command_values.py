@@ -36,7 +36,7 @@ def config():
 
 
 def publish_message(mqtt_client: mqtt.Client, name: str, value: str):
-    message_dictionary = {"action": name, "value": value}
+    message_dictionary = [{"action": name, "value": value}]
     message = json.dumps(message_dictionary)
 
     mqtt_client.publish("commands/test", message)
@@ -263,7 +263,7 @@ def test_read_error_messages(mqtt_client: mqtt.Client, modbus_client: ModbusTcpC
 
     # Generate two error messages by sending bad commands
     def send_bad_command(msg_obj):
-        message = json.dumps(msg_obj)
+        message = json.dumps([msg_obj])
         mqtt_client.publish("commands/test", message)
 
     send_bad_command({"invalid": ["message", "structure"]})
