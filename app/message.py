@@ -54,19 +54,6 @@ class CommandMessage:
             self.value = MessageTransformer.transform(self.configuration, self.value)
             MessageValidator.validate(self.input_type, self.value)
 
-    @classmethod
-    def read(cls, message_str: str):
-        try:
-            message_obj = json.loads(message_str)
-        except JSONDecodeError as ex:
-            raise InvalidMessageError(f"Message is invalid JSON syntax: {ex}")
-
-        if not message_obj.get("action") or "value" not in message_obj:
-            raise InvalidMessageError(
-                "Message is missing required components 'action' and/or 'value'"
-            )
-        return message_obj
-
 
 class MessageValidator:
     @classmethod

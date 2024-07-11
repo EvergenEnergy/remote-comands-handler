@@ -4,7 +4,7 @@ import pytest
 from datetime import datetime
 import json
 from app.configuration import Configuration
-from app.message import CommandMessage, ErrorMessage
+from app.message import CommandMessageList, CommandMessage, ErrorMessage
 from app.exceptions import InvalidMessageError, UnknownCommandError
 
 
@@ -15,11 +15,12 @@ class TestCommandMessage:
         )
 
     def test_good_cmd_message(self):
-        json_obj = {"action": "somecoil", "value": True}
+        json_obj = [{"action": "somecoil", "value": True}]
         json_str = json.dumps(json_obj)
-        read_msg = CommandMessage.read(json_str)
-        assert "action" in read_msg
-        assert "value" in read_msg
+        read_msg = CommandMessageList.read(json_str)
+        assert len(read_msg) == 1
+        assert "action" in read_msg[0]
+        assert "value" in read_msg[0]
 
     def test_unknown_command(self):
         with pytest.raises(UnknownCommandError) as ex:
@@ -34,9 +35,9 @@ class TestCommandMessage:
         for key in ("action", "value"):
             json_obj["foo"] = json_obj[key]
             del json_obj[key]
-            json_str = json.dumps(json_obj)
+            json_str = json.dumps([json_obj])
             with pytest.raises(InvalidMessageError) as ex:
-                _ = CommandMessage.read(json_str)
+                _ = CommandMessageList.read(json_str)
             assert "Message is missing required components" in str(ex.value)
             assert ex.type == InvalidMessageError
             json_obj[key] = json_obj["foo"]
@@ -44,7 +45,7 @@ class TestCommandMessage:
     def test_bad_cmd_message_syntax(self):
         json_str = "not a real json string"
         with pytest.raises(InvalidMessageError) as ex:
-            _ = CommandMessage.read(json_str)
+            _ = CommandMessageList.read(json_str)
         assert "Message is invalid JSON syntax" in str(ex.value)
         assert ex.type == InvalidMessageError
 
