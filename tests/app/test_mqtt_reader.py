@@ -74,6 +74,24 @@ class TestMqttReader:
             "Message is invalid JSON syntax: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)",  # noqa
         )
 
+        bad_json_str = '["list","without","dict"]'
+        paho_msg = MQTTMessage()
+        paho_msg.payload = bad_json_str.encode()
+        self.mock_mqtt_client.on_message(self.mock_mqtt_client, None, paho_msg)
+        self.mock_error_handler.publish.assert_called_with(
+            self.mock_error_handler.Category.INVALID_MESSAGE,
+            "Message object must be a dict",
+        )
+
+        bad_json_str = '[{"action":"but no value"}]'
+        paho_msg = MQTTMessage()
+        paho_msg.payload = bad_json_str.encode()
+        self.mock_mqtt_client.on_message(self.mock_mqtt_client, None, paho_msg)
+        self.mock_error_handler.publish.assert_called_with(
+            self.mock_error_handler.Category.INVALID_MESSAGE,
+            "Message is missing required components 'action' and/or 'value'",
+        )
+
         self.mqtt_reader.stop()
 
     def test_unknown_message(self):
