@@ -23,6 +23,8 @@ class CommandMessageList:
             raise InvalidMessageError(f"Message is invalid JSON syntax: {ex}")
 
         for message_obj in message_list:
+            if not isinstance(message_obj, dict):
+                raise InvalidMessageError("Message object must be a dict")
             if not message_obj.get("action") or "value" not in message_obj:
                 raise InvalidMessageError(
                     "Message is missing required components 'action' and/or 'value'"
