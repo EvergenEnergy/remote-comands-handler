@@ -65,10 +65,10 @@ class MqttReader:
 
     def _on_message(self):
         def inner(_client, _userdata, message):
+            msg_topic = message.topic
+            msg_str = ""
+            msg_obj_list = []
             try:
-                msg_topic = message.topic
-                msg_obj_list = []
-                msg_str = ""
                 try:
                     msg_str = _decode_message(message)
                     msg_list = CommandMessageList.read(msg_str)
