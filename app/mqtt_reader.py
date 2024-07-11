@@ -66,7 +66,9 @@ class MqttReader:
     def _on_message(self):
         def inner(_client, _userdata, message):
             try:
+                msg_topic = message.topic
                 msg_obj_list = []
+                msg_str = ""
                 try:
                     msg_str = _decode_message(message)
                     msg_list = CommandMessageList.read(msg_str)
@@ -95,6 +97,8 @@ class MqttReader:
             # and prevent them rising up to the main loop.
             # If these occur, the cause should be identified and code changed to catch them.
             except Exception as ex:
+                logging.error(f"Encountered error {ex} on topic {msg_topic}")
+                logging.info(msg_str)
                 self.error_handler.publish(
                     self.error_handler.Category.UNHANDLED, str(ex)
                 )
